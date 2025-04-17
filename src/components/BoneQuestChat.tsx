@@ -4,7 +4,8 @@ import { useConversation } from '@11labs/react';
 import { toast } from 'sonner';
 import ChatMessage from './ChatMessage';
 import MicButton from './MicButton';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
+import HologramBot from './HologramBot';
 
 interface Message {
   content: string;
@@ -31,12 +32,12 @@ const BoneQuestChat: React.FC = () => {
     onMessage: (message) => {
       console.log("Received message:", message);
       
-      if (message.role === 'assistant' && message.content) {
+      if (message.source === 'assistant' && message.message) {
         // Add assistant message to chat
-        setMessages(prev => [...prev, { content: message.content, isUser: false }]);
-      } else if (message.role === 'user' && message.content) {
+        setMessages(prev => [...prev, { content: message.message, isUser: false }]);
+      } else if (message.source === 'user' && message.message) {
         // Add user message to chat
-        setMessages(prev => [...prev, { content: message.content, isUser: true }]);
+        setMessages(prev => [...prev, { content: message.message, isUser: true }]);
       }
     },
     onError: (error) => {
@@ -107,51 +108,66 @@ const BoneQuestChat: React.FC = () => {
   };
 
   // Find speaking message (if any)
-  const speakingMessageIndex = isSpeaking ? messages.findLastIndex(msg => !msg.isUser) : -1;
+  const speakingMessageIndex = isSpeaking ? messages.findIndex(msg => !msg.isUser) : -1;
+  const lastBotMessage = messages.filter(msg => !msg.isUser).pop()?.content || '';
 
   return (
-    <Card className="w-full max-w-3xl mx-auto shadow-lg border-2 border-primary/20">
-      <CardHeader className="bg-primary/5">
-        <CardTitle className="text-2xl font-bold text-center">BoneQuest AI</CardTitle>
-      </CardHeader>
-      <CardContent className="p-6">
-        <div className="flex flex-col h-[500px]">
-          <div className="flex-1 overflow-y-auto mb-4 px-2">
-            {messages.length === 0 ? (
-              <div className="flex items-center justify-center h-full text-muted-foreground">
-                <p>Start a conversation with BoneQuest AI</p>
-              </div>
-            ) : (
-              messages.map((message, index) => (
-                <ChatMessage 
-                  key={index} 
-                  message={message.content} 
-                  isUser={message.isUser}
-                  isSpeaking={!message.isUser && index === speakingMessageIndex && isSpeaking}
-                />
-              ))
-            )}
-            <div ref={messagesEndRef} />
-          </div>
-          
-          <div className="flex items-center justify-center mt-4">
-            <MicButton 
-              isListening={isConnected} 
-              onClick={handleMicToggle}
-              disabled={!hasMicPermission && !isConnected}
+    <div className="hologram-container flex flex-col items-center justify-center">
+      <div className="hologram-platform relative">
+        <HologramBot isSpeaking={isSpeaking} />
+        
+        {messages.length > 0 && (
+          <div className="message-display animate-fade-in">
+            <ChatMessage 
+              message={lastBotMessage}
+              isUser={false}
+              isSpeaking={isSpeaking}
             />
           </div>
-          
-          <div className="text-center mt-4 text-sm text-muted-foreground">
-            {isConnected ? (
-              isSpeaking ? "BoneQuest is speaking..." : "BoneQuest is listening..."
-            ) : (
-              "Click the microphone to start"
-            )}
+        )}
+      </div>
+      
+      <Card className="control-panel w-full max-w-lg mx-auto mt-8 bg-opacity-20 backdrop-blur-sm border-primary/30 animate-fade-in">
+        <CardContent className="p-6">
+          <div className="flex flex-col">
+            <div className="messages-container max-h-48 overflow-y-auto mb-4 px-2">
+              {messages.length > 0 ? (
+                messages.map((message, index) => (
+                  <div key={index} className={`message-item ${!message.isUser && index === messages.length - 1 ? 'hidden' : 'block'}`}>
+                    <ChatMessage 
+                      message={message.content} 
+                      isUser={message.isUser}
+                      isSpeaking={!message.isUser && index === speakingMessageIndex && isSpeaking}
+                    />
+                  </div>
+                ))
+              ) : (
+                <div className="flex items-center justify-center h-24 text-cyan-300 animate-pulse">
+                  <p>Start a conversation with BoneQuest AI</p>
+                </div>
+              )}
+              <div ref={messagesEndRef} />
+            </div>
+            
+            <div className="flex items-center justify-center mt-4">
+              <MicButton 
+                isListening={isConnected} 
+                onClick={handleMicToggle}
+                disabled={!hasMicPermission && !isConnected}
+              />
+            </div>
+            
+            <div className="text-center mt-4 text-sm text-cyan-300">
+              {isConnected ? (
+                isSpeaking ? "BoneQuest is speaking..." : "BoneQuest is listening..."
+              ) : (
+                "Click the microphone to start"
+              )}
+            </div>
           </div>
-        </div>
-      </CardContent>
-    </Card>
+        </CardContent>
+      </Card>
+    </div>
   );
 };
 
