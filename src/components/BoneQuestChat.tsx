@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useRef } from 'react';
 import { useConversation } from '@11labs/react';
 import { toast } from 'sonner';
@@ -32,11 +31,12 @@ const BoneQuestChat: React.FC = () => {
     onMessage: (message) => {
       console.log("Received message:", message);
       
-      // Fix for Role type - checking source against appropriate type
-      if (message.source && message.source === 'assistant' && message.message) {
+      // Fix for type mismatch - checking string value without direct comparison to type Role
+      const source = message.source as unknown as string;
+      if (source && source.includes('assistant') && message.message) {
         // Add assistant message to chat
         setMessages(prev => [...prev, { content: message.message, isUser: false }]);
-      } else if (message.source && message.source === 'user' && message.message) {
+      } else if (source && source.includes('user') && message.message) {
         // Add user message to chat
         setMessages(prev => [...prev, { content: message.message, isUser: true }]);
       }
