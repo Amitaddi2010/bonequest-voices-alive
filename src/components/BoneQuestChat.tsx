@@ -4,6 +4,7 @@ import { toast } from 'sonner';
 import ChatMessage from './ChatMessage';
 import MicButton from './MicButton';
 import { Card, CardContent } from '@/components/ui/card';
+import { ScrollArea } from '@/components/ui/scroll-area';
 import HologramBot from './HologramBot';
 
 interface Message {
@@ -131,24 +132,31 @@ const BoneQuestChat: React.FC = () => {
       <Card className="control-panel w-full max-w-lg mx-auto mt-8 bg-opacity-20 backdrop-blur-sm border-primary/30 animate-fade-in">
         <CardContent className="p-6">
           <div className="flex flex-col">
-            <div className="messages-container max-h-48 overflow-y-auto mb-4 px-2">
-              {messages.length > 0 ? (
-                messages.map((message, index) => (
-                  <div key={index} className={`message-item ${!message.isUser && index === messages.length - 1 ? 'hidden' : 'block'}`}>
-                    <ChatMessage 
-                      message={message.content} 
-                      isUser={message.isUser}
-                      isSpeaking={!message.isUser && index === speakingMessageIndex && isSpeaking}
-                    />
+            <ScrollArea className="flex-1 h-48 rounded-md border border-primary/20 bg-black/10 p-4">
+              <div className="pr-4">
+                {messages.length > 0 ? (
+                  messages.map((message, index) => (
+                    <div 
+                      key={index} 
+                      className={`message-item ${
+                        !message.isUser && index === messages.length - 1 ? 'hidden' : 'block'
+                      }`}
+                    >
+                      <ChatMessage 
+                        message={message.content} 
+                        isUser={message.isUser}
+                        isSpeaking={!message.isUser && index === speakingMessageIndex && isSpeaking}
+                      />
+                    </div>
+                  ))
+                ) : (
+                  <div className="flex items-center justify-center h-24 text-cyan-300 animate-pulse">
+                    <p>Start a conversation with BoneQuest AI</p>
                   </div>
-                ))
-              ) : (
-                <div className="flex items-center justify-center h-24 text-cyan-300 animate-pulse">
-                  <p>Start a conversation with BoneQuest AI</p>
-                </div>
-              )}
-              <div ref={messagesEndRef} />
-            </div>
+                )}
+                <div ref={messagesEndRef} />
+              </div>
+            </ScrollArea>
             
             <div className="flex items-center justify-center mt-4">
               <MicButton 
