@@ -32,10 +32,11 @@ const BoneQuestChat: React.FC = () => {
     onMessage: (message) => {
       console.log("Received message:", message);
       
-      if (message.source === 'assistant' && message.message) {
+      // Fix for Role type - checking source against appropriate type
+      if (message.source && message.source === 'assistant' && message.message) {
         // Add assistant message to chat
         setMessages(prev => [...prev, { content: message.message, isUser: false }]);
-      } else if (message.source === 'user' && message.message) {
+      } else if (message.source && message.source === 'user' && message.message) {
         // Add user message to chat
         setMessages(prev => [...prev, { content: message.message, isUser: true }]);
       }
