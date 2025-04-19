@@ -16,6 +16,7 @@ const BoneQuestChat: React.FC = () => {
   const [messages, setMessages] = useState<Message[]>([]);
   const [isReady, setIsReady] = useState(false);
   const [hasMicPermission, setHasMicPermission] = useState(false);
+  const [isWakeWordListening, setIsWakeWordListening] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   
   const agentId = "P39r1B8PJCGBBZL54HdP"; // Your ElevenLabs agent ID
@@ -74,6 +75,71 @@ const BoneQuestChat: React.FC = () => {
     
     checkMicPermission();
   }, []);
+
+  useEffect(() => {
+    const startWakeWordDetection = () => {
+      if (!window.SpeechRecognition && !window.webkitSpeechRecognition) {
+        toast.error("Speech recognition is not supported in your browser");
+        return;
+      }
+
+      const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+      const recognition = new SpeechRecognition();
+      recognition.continuous = true;
+      recognition.interimResults = false;
+      recognition.lang = 'en-US';
+
+      recognition.onresult = async (event) => {
+        const transcript = event.results[event.results.length - 1][0].transcript.toLowerCase();
+        if (transcript.includes('hey bonequest')) {
+          if (!isConnected) {
+            setIsWakeWordListening(false);
+            recognition.stop();
+            try {
+              const conversationId = await conversation.startSession({ agentId });
+              console.log("Conversation started with ID:", conversationId);
+              toast.success("Connected to BoneQuest AI");
+            } catch (error) {
+              console.error("Error starting conversation:", error);
+              toast.error("Failed to connect to BoneQuest AI");
+              setIsWakeWordListening(true);
+              recognition.start();
+            }
+          }
+        }
+      };
+
+      recognition.onend = () => {
+        if (!isConnected && !isWakeWordListening) {
+          recognition.start();
+          setIsWakeWordListening(true);
+        }
+      };
+
+      recognition.onerror = (event) => {
+        console.error('Speech recognition error:', event.error);
+        if (event.error !== 'aborted') {
+          toast.error("Error with speech recognition. Please try again.");
+        }
+      };
+
+      try {
+        recognition.start();
+        setIsWakeWordListening(true);
+      } catch (error) {
+        console.error('Error starting wake word detection:', error);
+      }
+
+      return () => {
+        recognition.stop();
+        setIsWakeWordListening(false);
+      };
+    };
+
+    if (hasMicPermission && !isConnected) {
+      startWakeWordDetection();
+    }
+  }, [hasMicPermission, isConnected, conversation, agentId]);
 
   const handleMicToggle = async () => {
     if (!hasMicPermission) {
