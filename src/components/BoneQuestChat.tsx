@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, useRef } from 'react';
 import { useConversation } from '@11labs/react';
 import { toast } from 'sonner';
@@ -18,6 +19,8 @@ const BoneQuestChat: React.FC = () => {
   const [hasMicPermission, setHasMicPermission] = useState(false);
   const [isWakeWordListening, setIsWakeWordListening] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const recognitionRef = useRef<SpeechRecognition | null>(null);
+  const isRestartingRef = useRef<boolean>(false);
   
   const agentId = "P39r1B8PJCGBBZL54HdP"; // Your ElevenLabs agent ID
 
@@ -54,6 +57,18 @@ const BoneQuestChat: React.FC = () => {
   const isConnected = status === 'connected';
   const isListening = isConnected && !isSpeaking;
 
+  // Clean up speech recognition instance
+  const cleanupRecognition = () => {
+    if (recognitionRef.current) {
+      try {
+        recognitionRef.current.stop();
+      } catch (err) {
+        console.log("Recognition already stopped");
+      }
+      recognitionRef.current = null;
+    }
+  };
+
   useEffect(() => {
     // Scroll to bottom whenever messages change
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -74,72 +89,107 @@ const BoneQuestChat: React.FC = () => {
     };
     
     checkMicPermission();
+
+    return () => {
+      cleanupRecognition();
+    };
   }, []);
 
-  useEffect(() => {
-    const startWakeWordDetection = () => {
-      if (!window.SpeechRecognition && !window.webkitSpeechRecognition) {
-        toast.error("Speech recognition is not supported in your browser");
-        return;
-      }
+  const startWakeWordDetection = () => {
+    if (!window.SpeechRecognition && !window.webkitSpeechRecognition) {
+      toast.error("Speech recognition is not supported in your browser");
+      return;
+    }
 
-      const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-      const recognition = new SpeechRecognition();
-      recognition.continuous = true;
-      recognition.interimResults = false;
-      recognition.lang = 'en-US';
+    if (isRestartingRef.current) {
+      return;
+    }
 
-      recognition.onresult = async (event) => {
-        const transcript = event.results[event.results.length - 1][0].transcript.toLowerCase();
-        if (transcript.includes('hey bonequest')) {
-          if (!isConnected) {
-            setIsWakeWordListening(false);
-            recognition.stop();
-            try {
-              const conversationId = await conversation.startSession({ agentId });
-              console.log("Conversation started with ID:", conversationId);
-              toast.success("Connected to BoneQuest AI");
-            } catch (error) {
-              console.error("Error starting conversation:", error);
-              toast.error("Failed to connect to BoneQuest AI");
+    cleanupRecognition();
+
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    const recognition = new SpeechRecognition();
+    recognition.continuous = true;
+    recognition.interimResults = false;
+    recognition.lang = 'en-US';
+    recognitionRef.current = recognition;
+
+    recognition.onresult = async (event) => {
+      const transcript = event.results[event.results.length - 1][0].transcript.toLowerCase();
+      if (transcript.includes('hey bonequest')) {
+        if (!isConnected) {
+          setIsWakeWordListening(false);
+          cleanupRecognition();
+          try {
+            const conversationId = await conversation.startSession({ agentId });
+            console.log("Conversation started with ID:", conversationId);
+            toast.success("Connected to BoneQuest AI");
+          } catch (error) {
+            console.error("Error starting conversation:", error);
+            toast.error("Failed to connect to BoneQuest AI");
+            setTimeout(() => {
               setIsWakeWordListening(true);
-              recognition.start();
-            }
+              startWakeWordDetection();
+            }, 1000);
           }
         }
-      };
-
-      recognition.onend = () => {
-        if (!isConnected && !isWakeWordListening) {
-          recognition.start();
-          setIsWakeWordListening(true);
-        }
-      };
-
-      recognition.onerror = (event) => {
-        console.error('Speech recognition error:', event.error);
-        if (event.error !== 'aborted') {
-          toast.error("Error with speech recognition. Please try again.");
-        }
-      };
-
-      try {
-        recognition.start();
-        setIsWakeWordListening(true);
-      } catch (error) {
-        console.error('Error starting wake word detection:', error);
       }
-
-      return () => {
-        recognition.stop();
-        setIsWakeWordListening(false);
-      };
     };
 
+    recognition.onend = () => {
+      // Only restart if we're supposed to be listening and not already restarting
+      if (!isConnected && !isRestartingRef.current) {
+        isRestartingRef.current = true;
+        setTimeout(() => {
+          if (!isConnected) {
+            try {
+              recognitionRef.current = null;
+              startWakeWordDetection();
+              setIsWakeWordListening(true);
+            } catch (err) {
+              console.error("Error restarting recognition:", err);
+            }
+          }
+          isRestartingRef.current = false;
+        }, 300);
+      }
+    };
+
+    recognition.onerror = (event) => {
+      console.error('Speech recognition error:', event.error);
+      if (event.error !== 'aborted') {
+        // Avoid showing too many toast errors for common errors
+        if (event.error !== 'no-speech') {
+          toast.error("Error with speech recognition. Please try again.");
+        }
+        
+        // Give a short delay before restarting
+        setTimeout(() => {
+          if (!isConnected && !isRestartingRef.current) {
+            startWakeWordDetection();
+          }
+        }, 1000);
+      }
+    };
+
+    try {
+      recognition.start();
+      setIsWakeWordListening(true);
+    } catch (error) {
+      console.error('Error starting wake word detection:', error);
+      setIsWakeWordListening(false);
+    }
+  };
+
+  useEffect(() => {
     if (hasMicPermission && !isConnected) {
       startWakeWordDetection();
     }
-  }, [hasMicPermission, isConnected, conversation, agentId]);
+
+    return () => {
+      cleanupRecognition();
+    };
+  }, [hasMicPermission, isConnected]);
 
   const handleMicToggle = async () => {
     if (!hasMicPermission) {
@@ -152,6 +202,8 @@ const BoneQuestChat: React.FC = () => {
         return;
       }
     }
+
+    cleanupRecognition();
 
     if (isConnected) {
       console.log("Ending conversation session");
