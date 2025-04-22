@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useRef } from 'react';
 import { useConversation } from '@11labs/react';
 import { toast } from 'sonner';
@@ -22,7 +21,7 @@ const BoneQuestChat: React.FC = () => {
   const recognitionRef = useRef<SpeechRecognition | null>(null);
   const isRestartingRef = useRef<boolean>(false);
   
-  const agentId = "P39r1B8PJCGBBZL54HdP"; // Your ElevenLabs agent ID
+  const agentId = "E4dzndpdnjs9K0slPePm"; // Updated agent ID
 
   const conversation = useConversation({
     onConnect: () => {
@@ -217,7 +216,10 @@ const BoneQuestChat: React.FC = () => {
     } else {
       console.log("Starting conversation with agent:", agentId);
       try {
-        const conversationId = await conversation.startSession({ agentId });
+        const conversationId = await conversation.startSession({ 
+          agentId,
+          // Add ElevenLabs API key configuration here if needed
+        });
         console.log("Conversation started with ID:", conversationId);
         toast.success("Connected to BoneQuest AI");
       } catch (error) {
