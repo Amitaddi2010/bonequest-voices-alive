@@ -1,11 +1,9 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useConversation } from '@11labs/react';
 import { toast } from 'sonner';
-import ChatMessage from './ChatMessage';
-import MicButton from './MicButton';
-import { Card, CardContent } from '@/components/ui/card';
-import { ScrollArea } from '@/components/ui/scroll-area';
-import HologramBot from './HologramBot';
+import { Card } from '@/components/ui/card';
+import RobotModel from './RobotModel';
+import InteractionPanel from './InteractionPanel';
 
 interface Message {
   content: string;
@@ -17,6 +15,7 @@ const BoneQuestChat: React.FC = () => {
   const [isReady, setIsReady] = useState(false);
   const [hasMicPermission, setHasMicPermission] = useState(false);
   const [isWakeWordListening, setIsWakeWordListening] = useState(false);
+  const [robotEmotion, setRobotEmotion] = useState<'neutral' | 'happy' | 'thinking' | 'confused'>('neutral');
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const recognitionRef = useRef<SpeechRecognition | null>(null);
   const isRestartingRef = useRef<boolean>(false);
@@ -27,6 +26,8 @@ const BoneQuestChat: React.FC = () => {
     onConnect: () => {
       console.log("Connected to ElevenLabs");
       setIsReady(true);
+      setRobotEmotion('happy');
+      setTimeout(() => setRobotEmotion('neutral'), 2000);
     },
     onDisconnect: () => {
       console.log("Disconnected from ElevenLabs");
@@ -38,9 +39,21 @@ const BoneQuestChat: React.FC = () => {
       // Fix for type mismatch - checking string value without direct comparison to type Role
       const source = message.source as unknown as string;
       if (source && source.includes('assistant') && message.message) {
+        // Change emotion based on message content
+        if (message.message.includes('?')) {
+          setRobotEmotion('confused');
+        } else if (message.message.includes('!')) {
+          setRobotEmotion('happy');
+        } else {
+          setRobotEmotion('neutral');
+        }
+        
         // Add assistant message to chat
         setMessages(prev => [...prev, { content: message.message, isUser: false }]);
       } else if (source && source.includes('user') && message.message) {
+        // Set thinking emotion when user speaks
+        setRobotEmotion('thinking');
+        
         // Add user message to chat
         setMessages(prev => [...prev, { content: message.message, isUser: true }]);
       }
@@ -48,6 +61,7 @@ const BoneQuestChat: React.FC = () => {
     onError: (error) => {
       console.error("Error in conversation:", error);
       toast.error("Error in conversation. Please try again.");
+      setRobotEmotion('confused');
     }
   });
 
@@ -206,6 +220,7 @@ const BoneQuestChat: React.FC = () => {
 
     if (isConnected) {
       console.log("Ending conversation session");
+      setRobotEmotion('neutral');
       try {
         await conversation.endSession();
         toast.success("Conversation ended");
@@ -215,6 +230,7 @@ const BoneQuestChat: React.FC = () => {
       }
     } else {
       console.log("Starting conversation with agent:", agentId);
+      setRobotEmotion('thinking');
       try {
         const conversationId = await conversation.startSession({ 
           agentId,
@@ -225,77 +241,53 @@ const BoneQuestChat: React.FC = () => {
       } catch (error) {
         console.error("Error starting conversation:", error);
         toast.error("Failed to connect to BoneQuest AI");
+        setRobotEmotion('confused');
       }
     }
   };
 
   // Find speaking message (if any)
   const speakingMessageIndex = isSpeaking ? messages.findIndex(msg => !msg.isUser) : -1;
-  const lastBotMessage = messages.filter(msg => !msg.isUser).pop()?.content || '';
 
   return (
-    <div className="hologram-container flex flex-col items-center justify-center">
-      <div className="hologram-platform relative">
-        <HologramBot isSpeaking={isSpeaking} />
-        
-        {messages.length > 0 && (
-          <div className="message-display animate-fade-in">
-            <ChatMessage 
-              message={lastBotMessage}
-              isUser={false}
-              isSpeaking={isSpeaking}
-            />
+    <div className="futuristic-container relative flex flex-col md:flex-row gap-8 items-center justify-center w-full max-w-6xl mx-auto">
+      <div className={`robot-visualization flex-1 w-full max-w-md transition-all duration-500 ${isSpeaking ? 'scale-105' : ''}`}>
+        <div className="robot-platform relative mb-4">
+          <RobotModel isSpeaking={isSpeaking} emotion={robotEmotion} />
+          
+          {/* Holographic platform effect */}
+          <div className="hologram-base absolute bottom-0 left-1/2 transform -translate-x-1/2 w-40 h-4 rounded-full bg-cyan-500/20 blur-md"></div>
+          
+          {/* Pulse rings */}
+          <div className="absolute bottom-0 left-1/2 transform -translate-x-1/2">
+            {[1, 2, 3].map((i) => (
+              <div 
+                key={i}
+                className="absolute rounded-full border border-cyan-500/30"
+                style={{
+                  width: `${100 + i * 30}px`,
+                  height: `${100 + i * 30}px`,
+                  bottom: `-${50 + i * 15}px`,
+                  left: `-${50 + i * 15}px`,
+                  animation: `pulse-ring ${1.5 + i * 0.5}s cubic-bezier(0.1, 0.7, 0.3, 1) infinite`
+                }}
+              ></div>
+            ))}
           </div>
-        )}
+        </div>
       </div>
-      
-      <Card className="control-panel w-full max-w-lg mx-auto mt-8 bg-opacity-20 backdrop-blur-sm border-primary/30 animate-fade-in">
-        <CardContent className="p-6">
-          <div className="flex flex-col">
-            <ScrollArea className="flex-1 h-48 rounded-md border border-primary/20 bg-black/10 p-4">
-              <div className="pr-4">
-                {messages.length > 0 ? (
-                  messages.map((message, index) => (
-                    <div 
-                      key={index} 
-                      className={`message-item ${
-                        !message.isUser && index === messages.length - 1 ? 'hidden' : 'block'
-                      }`}
-                    >
-                      <ChatMessage 
-                        message={message.content} 
-                        isUser={message.isUser}
-                        isSpeaking={!message.isUser && index === speakingMessageIndex && isSpeaking}
-                      />
-                    </div>
-                  ))
-                ) : (
-                  <div className="flex items-center justify-center h-24 text-cyan-300 animate-pulse">
-                    <p>Start a conversation with BoneQuest AI</p>
-                  </div>
-                )}
-                <div ref={messagesEndRef} />
-              </div>
-            </ScrollArea>
-            
-            <div className="flex items-center justify-center mt-4">
-              <MicButton 
-                isListening={isConnected} 
-                onClick={handleMicToggle}
-                disabled={!hasMicPermission && !isConnected}
-              />
-            </div>
-            
-            <div className="text-center mt-4 text-sm text-cyan-300">
-              {isConnected ? (
-                isSpeaking ? "BoneQuest is speaking..." : "BoneQuest is listening..."
-              ) : (
-                "Click the microphone to start"
-              )}
-            </div>
-          </div>
-        </CardContent>
-      </Card>
+
+      <div className="interaction-area flex-1 w-full max-w-xl">
+        <InteractionPanel
+          messages={messages}
+          isConnected={isConnected}
+          isSpeaking={isSpeaking}
+          onMicToggle={handleMicToggle}
+          hasMicPermission={hasMicPermission}
+          speakingMessageIndex={speakingMessageIndex}
+        />
+        <div ref={messagesEndRef} />
+      </div>
     </div>
   );
 };
