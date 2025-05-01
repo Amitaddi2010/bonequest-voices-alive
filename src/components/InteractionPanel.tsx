@@ -59,7 +59,7 @@ const InteractionPanel: React.FC<InteractionPanelProps> = ({
           ))
         ) : (
           <div className="flex h-full items-center justify-center opacity-70">
-            <p className="text-[#FF3864]/70 text-center">
+            <p className="text-white text-center">
               Start a conversation with BoneQuest by clicking the button below
             </p>
           </div>
@@ -81,7 +81,7 @@ const InteractionPanel: React.FC<InteractionPanelProps> = ({
           )}
         </Button>
         
-        <p className="text-[#FF3864]/80 text-sm mt-3">
+        <p className="text-white text-sm mt-3">
           {isConnected ? (
             isSpeaking ? "BoneQuest is speaking..." : "BoneQuest is listening..."
           ) : (

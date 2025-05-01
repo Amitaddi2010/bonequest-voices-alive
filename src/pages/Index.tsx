@@ -16,7 +16,7 @@ const Index = () => {
         <h1 className="text-5xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-cyan-300 to-purple-400 glow-text mb-2">
           BoneQuest AI
         </h1>
-        <p className="text-cyan-100 text-lg max-w-xl">
+        <p className="text-white text-lg max-w-xl">
           Experience the next generation of conversational AI with our interactive robot interface
         </p>
       </header>
@@ -26,19 +26,19 @@ const Index = () => {
       </main>
       
       <footer className="relative z-10 mt-6 mb-4 text-center">
-        <p className="text-sm text-cyan-300/60">
+        <p className="text-sm text-white/60">
           Powered by ElevenLabs Conversational AI
         </p>
         <div className="mt-2 flex items-center justify-center space-x-4">
-          <div className="text-xs text-cyan-300/40 flex items-center">
+          <div className="text-xs text-white/40 flex items-center">
             <span className="w-2 h-2 rounded-full bg-cyan-400 mr-1"></span> 
             Voice Processing
           </div>
-          <div className="text-xs text-cyan-300/40 flex items-center">
+          <div className="text-xs text-white/40 flex items-center">
             <span className="w-2 h-2 rounded-full bg-purple-400 mr-1"></span> 
             Emotion Engine
           </div>
-          <div className="text-xs text-cyan-300/40 flex items-center">
+          <div className="text-xs text-white/40 flex items-center">
             <span className="w-2 h-2 rounded-full bg-rose-400 mr-1"></span> 
             3D Visualization
           </div>
