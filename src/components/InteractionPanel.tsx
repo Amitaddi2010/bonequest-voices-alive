@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { Button } from '@/components/ui/button';
-import { MicrophoneIcon, PauseIcon, BrainCircuitIcon, SettingsIcon } from 'lucide-react';
+import { Mic, Pause, BrainCircuit, Settings } from 'lucide-react';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import ChatMessage from './ChatMessage';
 
@@ -38,10 +38,10 @@ const InteractionPanel: React.FC<InteractionPanelProps> = ({
         </div>
         <div className="flex space-x-2">
           <Button variant="ghost" size="icon" className="text-cyan-300 hover:text-cyan-100 hover:bg-cyan-900/30">
-            <BrainCircuitIcon className="h-5 w-5" />
+            <BrainCircuit className="h-5 w-5" />
           </Button>
           <Button variant="ghost" size="icon" className="text-cyan-300 hover:text-cyan-100 hover:bg-cyan-900/30">
-            <SettingsIcon className="h-5 w-5" />
+            <Settings className="h-5 w-5" />
           </Button>
         </div>
       </div>
@@ -75,9 +75,9 @@ const InteractionPanel: React.FC<InteractionPanelProps> = ({
           }`}
         >
           {isConnected ? (
-            <PauseIcon className="h-8 w-8 text-white" />
+            <Pause className="h-8 w-8 text-white" />
           ) : (
-            <MicrophoneIcon className="h-8 w-8 text-white" />
+            <Mic className="h-8 w-8 text-white" />
           )}
         </Button>
         

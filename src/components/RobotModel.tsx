@@ -1,7 +1,7 @@
 
-import React, { useRef, useEffect } from 'react';
+import React, { useRef } from 'react';
 import { Canvas, useFrame } from '@react-three/fiber';
-import { OrbitControls, useGLTF, Environment } from '@react-three/drei';
+import { OrbitControls, Environment } from '@react-three/drei';
 import * as THREE from 'three';
 
 interface ModelProps {
@@ -84,10 +84,10 @@ function Robot({ isSpeaking, emotion = 'neutral', scale = 2 }: ModelProps) {
       {/* Robot head */}
       <mesh ref={headRef} position={[0, 0.5, 0]}>
         <sphereGeometry args={[0.5, 32, 32]} />
-        <meshStandardMaterial 
-          color="#1E3A5F" 
-          metalness={0.8} 
-          roughness={0.2} 
+        <meshStandardMaterial
+          color="#1E3A5F"
+          metalness={0.8}
+          roughness={0.2}
           envMapIntensity={1}
         />
       </mesh>
@@ -95,22 +95,22 @@ function Robot({ isSpeaking, emotion = 'neutral', scale = 2 }: ModelProps) {
       {/* Robot eyes */}
       <mesh ref={eyeLeftRef} position={[-0.2, 0.6, 0.4]}>
         <sphereGeometry args={[0.08, 32, 32]} />
-        <meshStandardMaterial 
-          color="#4DD5FE" 
+        <meshStandardMaterial
+          color="#4DD5FE"
           emissive="#4DD5FE"
-          emissiveIntensity={1} 
-          metalness={0.5} 
+          emissiveIntensity={1}
+          metalness={0.5}
           roughness={0.2}
         />
       </mesh>
       
       <mesh ref={eyeRightRef} position={[0.2, 0.6, 0.4]}>
         <sphereGeometry args={[0.08, 32, 32]} />
-        <meshStandardMaterial 
-          color="#4DD5FE" 
+        <meshStandardMaterial
+          color="#4DD5FE"
           emissive="#4DD5FE"
-          emissiveIntensity={1} 
-          metalness={0.5} 
+          emissiveIntensity={1}
+          metalness={0.5}
           roughness={0.2}
         />
       </mesh>
@@ -118,10 +118,10 @@ function Robot({ isSpeaking, emotion = 'neutral', scale = 2 }: ModelProps) {
       {/* Robot mouth */}
       <mesh ref={mouthRef} position={[0, 0.3, 0.4]}>
         <boxGeometry args={[0.3, 0.05, 0.05]} />
-        <meshStandardMaterial 
-          color="#FF5E8E" 
+        <meshStandardMaterial
+          color="#FF5E8E"
           emissive="#FF5E8E"
-          emissiveIntensity={0.8} 
+          emissiveIntensity={0.8}
         />
       </mesh>
       
@@ -139,10 +139,10 @@ function Robot({ isSpeaking, emotion = 'neutral', scale = 2 }: ModelProps) {
       {/* Robot body/platform */}
       <mesh position={[0, -0.2, 0]}>
         <cylinderGeometry args={[0.6, 0.5, 0.2, 32]} />
-        <meshStandardMaterial 
-          color="#0A1929" 
-          metalness={0.7} 
-          roughness={0.3} 
+        <meshStandardMaterial
+          color="#0A1929"
+          metalness={0.7}
+          roughness={0.3}
           envMapIntensity={1}
         />
       </mesh>
@@ -150,9 +150,9 @@ function Robot({ isSpeaking, emotion = 'neutral', scale = 2 }: ModelProps) {
       {/* Glowing base ring */}
       <mesh position={[0, -0.3, 0]} rotation={[Math.PI / 2, 0, 0]}>
         <torusGeometry args={[0.6, 0.05, 16, 32]} />
-        <meshStandardMaterial 
+        <meshStandardMaterial
           color="#4DD5FE"
-          emissive="#4DD5FE"  
+          emissive="#4DD5FE"
           emissiveIntensity={1}
           transparent={true}
           opacity={0.8}
