@@ -46,19 +46,20 @@ function Robot({ isSpeaking, emotion = 'neutral', scale = 2 }: ModelProps) {
       }
 
       // Different eye colors based on emotion
-      if (eyeLeftRef.current.material instanceof THREE.MeshStandardMaterial) {
+      if (eyeLeftRef.current.material instanceof THREE.MeshStandardMaterial && 
+          eyeRightRef.current.material instanceof THREE.MeshStandardMaterial) {
         if (emotion === 'happy') {
-          eyeLeftRef.current.material.emissive = new THREE.Color('#4DD5FE');
-          eyeRightRef.current.material.emissive = new THREE.Color('#4DD5FE');
+          eyeLeftRef.current.material.emissive = new THREE.Color('#FFFC31');
+          eyeRightRef.current.material.emissive = new THREE.Color('#FFFC31');
         } else if (emotion === 'confused') {
-          eyeLeftRef.current.material.emissive = new THREE.Color('#FFA500');
-          eyeRightRef.current.material.emissive = new THREE.Color('#FFA500');
+          eyeLeftRef.current.material.emissive = new THREE.Color('#FF3864');
+          eyeRightRef.current.material.emissive = new THREE.Color('#FF3864');
         } else if (emotion === 'thinking') {
-          eyeLeftRef.current.material.emissive = new THREE.Color('#FFFFFF');
-          eyeRightRef.current.material.emissive = new THREE.Color('#FFFFFF');
+          eyeLeftRef.current.material.emissive = new THREE.Color('#7A04EB');
+          eyeRightRef.current.material.emissive = new THREE.Color('#7A04EB');
         } else {
-          eyeLeftRef.current.material.emissive = new THREE.Color('#4DD5FE');
-          eyeRightRef.current.material.emissive = new THREE.Color('#4DD5FE');
+          eyeLeftRef.current.material.emissive = new THREE.Color('#FFFC31');
+          eyeRightRef.current.material.emissive = new THREE.Color('#FFFC31');
         }
         
         eyeLeftRef.current.material.emissiveIntensity = 0.8 + Math.sin(state.clock.getElapsedTime() * 2) * 0.2;
@@ -85,7 +86,7 @@ function Robot({ isSpeaking, emotion = 'neutral', scale = 2 }: ModelProps) {
       <mesh ref={headRef} position={[0, 0.5, 0]}>
         <sphereGeometry args={[0.5, 32, 32]} />
         <meshStandardMaterial
-          color="#1E3A5F"
+          color="#0F1C2E"
           metalness={0.8}
           roughness={0.2}
           envMapIntensity={1}
@@ -96,8 +97,8 @@ function Robot({ isSpeaking, emotion = 'neutral', scale = 2 }: ModelProps) {
       <mesh ref={eyeLeftRef} position={[-0.2, 0.6, 0.4]}>
         <sphereGeometry args={[0.08, 32, 32]} />
         <meshStandardMaterial
-          color="#4DD5FE"
-          emissive="#4DD5FE"
+          color="#FFFC31"
+          emissive="#FFFC31"
           emissiveIntensity={1}
           metalness={0.5}
           roughness={0.2}
@@ -107,8 +108,8 @@ function Robot({ isSpeaking, emotion = 'neutral', scale = 2 }: ModelProps) {
       <mesh ref={eyeRightRef} position={[0.2, 0.6, 0.4]}>
         <sphereGeometry args={[0.08, 32, 32]} />
         <meshStandardMaterial
-          color="#4DD5FE"
-          emissive="#4DD5FE"
+          color="#FFFC31"
+          emissive="#FFFC31"
           emissiveIntensity={1}
           metalness={0.5}
           roughness={0.2}
@@ -119,8 +120,8 @@ function Robot({ isSpeaking, emotion = 'neutral', scale = 2 }: ModelProps) {
       <mesh ref={mouthRef} position={[0, 0.3, 0.4]}>
         <boxGeometry args={[0.3, 0.05, 0.05]} />
         <meshStandardMaterial
-          color="#FF5E8E"
-          emissive="#FF5E8E"
+          color="#FF3864"
+          emissive="#FF3864"
           emissiveIntensity={0.8}
         />
       </mesh>
@@ -128,19 +129,19 @@ function Robot({ isSpeaking, emotion = 'neutral', scale = 2 }: ModelProps) {
       {/* Robot antennas */}
       <mesh position={[-0.25, 0.9, 0]}>
         <cylinderGeometry args={[0.02, 0.02, 0.3, 16]} />
-        <meshStandardMaterial color="#4DD5FE" emissive="#4DD5FE" emissiveIntensity={0.5} />
+        <meshStandardMaterial color="#7A04EB" emissive="#7A04EB" emissiveIntensity={0.5} />
       </mesh>
       
       <mesh position={[0.25, 0.9, 0]}>
         <cylinderGeometry args={[0.02, 0.02, 0.3, 16]} />
-        <meshStandardMaterial color="#4DD5FE" emissive="#4DD5FE" emissiveIntensity={0.5} />
+        <meshStandardMaterial color="#7A04EB" emissive="#7A04EB" emissiveIntensity={0.5} />
       </mesh>
       
       {/* Robot body/platform */}
       <mesh position={[0, -0.2, 0]}>
         <cylinderGeometry args={[0.6, 0.5, 0.2, 32]} />
         <meshStandardMaterial
-          color="#0A1929"
+          color="#0F1C2E"
           metalness={0.7}
           roughness={0.3}
           envMapIntensity={1}
@@ -151,8 +152,8 @@ function Robot({ isSpeaking, emotion = 'neutral', scale = 2 }: ModelProps) {
       <mesh position={[0, -0.3, 0]} rotation={[Math.PI / 2, 0, 0]}>
         <torusGeometry args={[0.6, 0.05, 16, 32]} />
         <meshStandardMaterial
-          color="#4DD5FE"
-          emissive="#4DD5FE"
+          color="#FF3864"
+          emissive="#FF3864"
           emissiveIntensity={1}
           transparent={true}
           opacity={0.8}

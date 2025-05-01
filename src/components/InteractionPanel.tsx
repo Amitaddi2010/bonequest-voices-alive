@@ -28,25 +28,25 @@ const InteractionPanel: React.FC<InteractionPanelProps> = ({
   speakingMessageIndex
 }) => {
   return (
-    <div className="interaction-panel bg-gradient-to-br from-slate-900/90 to-slate-800/90 backdrop-blur-lg border border-cyan-500/20 rounded-2xl p-6 w-full max-w-xl mx-auto shadow-glow">
+    <div className="interaction-panel bg-gradient-to-br from-[#0F1C2E]/90 to-[#182436]/90 backdrop-blur-lg border border-[#FF3864]/20 rounded-2xl p-6 w-full max-w-xl mx-auto shadow-glow">
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center space-x-2">
-          <div className={`w-3 h-3 rounded-full ${isConnected ? 'bg-green-400 pulse-dot' : 'bg-slate-400'}`}></div>
-          <h2 className="text-cyan-300 text-lg font-semibold">
+          <div className={`w-3 h-3 rounded-full ${isConnected ? 'bg-[#FF3864] pulse-dot' : 'bg-slate-400'}`}></div>
+          <h2 className="text-[#FF3864] text-lg font-semibold">
             {isConnected ? 'Connected' : 'Ready to Connect'}
           </h2>
         </div>
         <div className="flex space-x-2">
-          <Button variant="ghost" size="icon" className="text-cyan-300 hover:text-cyan-100 hover:bg-cyan-900/30">
+          <Button variant="ghost" size="icon" className="text-[#7A04EB] hover:text-[#9942F5] hover:bg-[#7A04EB]/20">
             <BrainCircuit className="h-5 w-5" />
           </Button>
-          <Button variant="ghost" size="icon" className="text-cyan-300 hover:text-cyan-100 hover:bg-cyan-900/30">
+          <Button variant="ghost" size="icon" className="text-[#7A04EB] hover:text-[#9942F5] hover:bg-[#7A04EB]/20">
             <Settings className="h-5 w-5" />
           </Button>
         </div>
       </div>
       
-      <ScrollArea className="h-64 border border-cyan-500/20 rounded-xl bg-slate-900/50 p-4 mb-4">
+      <ScrollArea className="h-64 border border-[#FF3864]/20 rounded-xl bg-[#0F1C2E]/50 p-4 mb-4">
         {messages.length > 0 ? (
           messages.map((message, index) => (
             <div key={index} className="mb-3">
@@ -59,7 +59,7 @@ const InteractionPanel: React.FC<InteractionPanelProps> = ({
           ))
         ) : (
           <div className="flex h-full items-center justify-center opacity-70">
-            <p className="text-cyan-300/70 text-center">
+            <p className="text-[#FF3864]/70 text-center">
               Start a conversation with BoneQuest by clicking the button below
             </p>
           </div>
@@ -70,8 +70,8 @@ const InteractionPanel: React.FC<InteractionPanelProps> = ({
         <Button 
           onClick={onMicToggle}
           disabled={!hasMicPermission && !isConnected}
-          className={`rounded-full w-16 h-16 transition-all shadow-glow ${
-            isConnected ? 'bg-rose-500 hover:bg-rose-600 pulse-animation' : 'bg-cyan-500 hover:bg-cyan-600'
+          className={`rounded-full w-16 h-16 transition-all ${
+            isConnected ? 'bg-[#FF3864] hover:bg-[#FF5A7E] pulse-animation' : 'bg-[#7A04EB] hover:bg-[#9942F5]'
           }`}
         >
           {isConnected ? (
@@ -81,7 +81,7 @@ const InteractionPanel: React.FC<InteractionPanelProps> = ({
           )}
         </Button>
         
-        <p className="text-cyan-300/80 text-sm mt-3">
+        <p className="text-[#FF3864]/80 text-sm mt-3">
           {isConnected ? (
             isSpeaking ? "BoneQuest is speaking..." : "BoneQuest is listening..."
           ) : (
